@@ -1,0 +1,9 @@
+{
+    "name": "Alice",
+    "age": 25,
+    "languages": [
+        "Python",
+        "C",
+        "Bash"
+    ]
+}
