@@ -1,0 +1,14 @@
+import json
+
+
+
+
+data = {
+    "name": "Alice",
+    "age": 25,
+    "languages": ["Python", "C", "Bash"]
+}
+
+
+with open("data.json", "w") as f:
+    json.dump(data, f, indent=4)
