@@ -1,11 +1,6 @@
-# define main function to print out something
-def main():
-    i = 1
-    max = 10
-    while (i < max):
-        print(i)
-        i = i + 1
+import sys 
+import datetime
 
-# call function main 
-main()
-from file.py import data
+def main():
+    print("Program startup")
+

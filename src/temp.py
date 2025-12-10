@@ -6,7 +6,9 @@ import dht11
 import time
 import datetime
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "lib/tempsensor"))
+tempsensor_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "lib", "tempsensor"))
+sys.path.append(tempsensor_path)
+#Why paht not working?
 import tempsensor_setup
 import tempsensor
 
