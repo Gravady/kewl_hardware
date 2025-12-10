@@ -1,8 +1,5 @@
 import json
 
-
-
-
 data = {
     "name": "Alice",
     "age": 25,
