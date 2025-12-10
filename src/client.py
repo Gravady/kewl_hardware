@@ -1,20 +1,23 @@
 import socket
 import json
 import time
+import threading
 
 PORT = 8080
 HOST = '0.0.0.0'   # Listen on all interfaces
 DEFAULT_HOST = '127.0.0.1'
 
 
-class SocketConnection:
+class SocketClient:
     def __init__(self):
         self.socketConn = None
-        self.CONN = None
         self.DATA = None
         self.JSON_PREFFERED = True
-        
-        self.connectSocketConnection()
+        self.NEW_DATA = None
+        self.HAS_NEW_DATA = False
+        self.IS_RUNNING = False 
+
+        self.connect()
         self.waitForData()
 
     def __del__(self):
@@ -23,13 +26,13 @@ class SocketConnection:
     def setJsonPreffered(self, preffered) :
         self.JSON_PREFFERED = preffered
 
-    def connectSocketConnection(self):
+    def connect(self):
         try :
             self.socketConn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socketConn.connect(HOST, PORT)
-            print(f"Server listening on {HOST}:{PORT}")
-            self.CONN, addr = self.socketConn.accept()
-            print("Connected by", str(addr))
+            print(f"Server connected to {HOST}:{PORT}")
+            self.IS_RUNNING = True
+            threading.Thread(target=self.waitForData, deamon=True).start()
         except KeyboardInterrupt:
             pass
         except OSError as e:
@@ -46,11 +49,14 @@ class SocketConnection:
 
     def waitForData(self):
         try:
-            while True:
-                self.DATA = deformatJsonData(self.CONN.recv(1024).decode('utf-8'))
-                #Forward data to hardware_controller.py
-                if not self.DATA:
+            while self.IS_RUNNING:
+                raw_data = self.socketConn.recv(1024)
+                if not raw_data:
+                    print("Server closed connection")
                     break
+                self.DATA = deformatJsonData(raw_data.decode('utf-8'))
+                if self.DATA is not None :
+                    self.NEW_DATA = self.DATA
                 print("Received:", self.DATA)
                 time.sleep(120)
         except KeyboardInterrupt:
@@ -61,17 +67,24 @@ class SocketConnection:
     def sendDataEntry(self, data) : 
         if(self.JSON_PREFFERED) :
             data = formatJsonData(data)
-            self.CONN.sendall(data.encode('utf-8'))
+            self.socketConn.sendall(data.encode('utf-8'))
         else : 
-            data = deformatJsonData(data)
-            self.CONN.sendall(data.encode('utf-8'))
+            self.socketConn.sendall(data.encode('utf-8'))
 
     def closeSocketConnection(self):
-        if self.CONN:
-            self.CONN.close()
+        if self.socketConn is not None:
+            self.socketConn.close()
         if self.socketConn:
             self.socketConn.close()
         print("Connection closed")
+
+    def getData(self) :
+        if self.HAS_NEW_DATA :
+            self.HAS_NEW_DATA = False
+            return self.NEW_DATA
+        else :
+            print("No new data")
+            return self.DATA
 
 
 def formatJsonData(data):
