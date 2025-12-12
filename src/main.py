@@ -2,9 +2,10 @@ import sys
 import datetime
 import time
 
-import src.file as file
-import src.client as client
-import src.temp as temp
+from . import file
+from . import client
+from . import temp
+
 
 def main():
     print("Program startup")
