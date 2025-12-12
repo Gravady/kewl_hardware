@@ -2,9 +2,9 @@ import sys
 import datetime
 import time
 
-from . import file
-from . import client
-from . import temp
+import file
+import client
+import temp
 
 
 def main():
